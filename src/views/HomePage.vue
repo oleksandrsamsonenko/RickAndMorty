@@ -469,5 +469,6 @@ export default {
   padding: 5px 10px;
   margin-bottom: 100px;
   border-radius: 10px;
+  cursor: pointer;
 }
 </style>
