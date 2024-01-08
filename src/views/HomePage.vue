@@ -156,7 +156,7 @@ export default {
   },
   computed: {
     shouldShowClear() {
-      return this.currentPage !== 1 || this.status !== '' || this.gender !== '' || this.name !== ''
+      return this.status !== '' || this.gender !== '' || this.name !== ''
     },
     characters() {
       return this.$store.getters.getCharacters
