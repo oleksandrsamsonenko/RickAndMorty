@@ -23,6 +23,7 @@
         <p class="text" v-if="type"><i>Type: </i> {{ type }}</p>
         <p class="text"><i>Origin planet: </i>{{ origin }}</p>
         <p class="text"><i>Last known location: </i>{{ location }}</p>
+        <router-link :to="{ name: 'character', params: { id } }"> Learn more </router-link>
       </div>
     </div>
   </div>
@@ -68,6 +69,10 @@ export default {
       type: String,
       required: false,
       default: 'unknown'
+    },
+    id: {
+      type: Number,
+      required: true
     }
   }
 }

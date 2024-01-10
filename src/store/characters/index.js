@@ -5,7 +5,7 @@ export default {
   state() {
     return {
       total: null,
-      pages: null,
+      pages: 1,
       characters: []
     }
   },

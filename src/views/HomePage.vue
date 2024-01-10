@@ -8,72 +8,26 @@
   <transition>
     <div class="wrapper" v-show="filterControl">
       <div>
-        <div class="filter">
-          <span>Filter by status:</span>
-          <span class="filter-option">
-            <input class="checkbox" type="radio" id="all" value="" v-model="status" />
-            <label class="label" for="all">All results</label>
-          </span>
-          <span class="filter-option">
-            <input class="checkbox" type="radio" id="alive" value="alive" v-model="status" />
-            <label class="label" for="alive">Alive</label>
-          </span>
-          <span class="filter-option">
-            <input class="checkbox" type="radio" id="dead" value="dead" v-model="status" />
-            <label class="label" for="dead">Dead</label>
-          </span>
-          <span class="filter-option">
-            <input
-              class="checkbox"
-              type="radio"
-              id="unknown-status"
-              value="unknown"
-              v-model="status"
-            />
-            <label class="label" for="unknown-status">Unknown</label>
-          </span>
-        </div>
-        <div class="filter">
-          <span>Filter by gender:</span>
-          <span class="filter-option">
-            <input class="checkbox" type="radio" id="all-gender" value="" v-model="gender" />
-            <label class="label" for="all-gender">All results</label>
-          </span>
-          <span class="filter-option">
-            <input class="checkbox" type="radio" id="male" value="male" v-model="gender" />
-            <label class="label" for="male">Male</label>
-          </span>
-          <span class="filter-option">
-            <input class="checkbox" type="radio" id="female" value="female" v-model="gender" />
-            <label class="label" for="female">Female</label>
-          </span>
-          <span class="filter-option">
-            <input
-              class="checkbox"
-              type="radio"
-              id="genderless"
-              value="genderless"
-              v-model="gender"
-            />
-            <label class="label" for="genderless">Genderless</label>
-          </span>
-          <span class="filter-option">
-            <input
-              class="checkbox"
-              type="radio"
-              id="unknown-gender"
-              value="unknown"
-              v-model="gender"
-            />
-            <label class="label" for="unknown-gender">Unknown</label>
-          </span>
-        </div>
+        <base-filter
+          @setFilter="setStatus"
+          :model="`status`"
+          :value="status"
+          :data="['all', 'alive', 'dead', 'unknown']"
+        ></base-filter>
+
+        <base-filter
+          @setFilter="setGender"
+          :model="`gender`"
+          :value="gender"
+          :data="['all', 'male', 'female', 'genderless', 'unknown']"
+        ></base-filter>
+
         <form class="filter" @submit.prevent="setName">
           <span>Find by name:</span>
           <input
             class="input"
-            type="search"
-            id="unknown-gender"
+            type="text"
+            id="search"
             placeholder="Search by name"
             v-model="name"
           />
@@ -98,51 +52,36 @@
     </div>
   </transition>
 
-  <!-- <p v-if="fullLoading">Loading...</p> -->
   <transition name="page">
-    <div v-if="!fullLoading">
-      <!-- <div v-if="pageLoading"><p>Loading page...</p></div> -->
-      <transition name="page">
-        <div v-if="!pageLoading">
-          <ul v-if="characters.length > 0" class="list">
-            <li v-for="character in characters" :key="character.id">
-              <BaseCard
-                :image="character.image"
-                :name="character.name"
-                :status="character.status"
-                :species="character.species"
-                :location="character.location.name"
-                :gender="character.gender"
-                :type="character.type"
-                :origin="character.origin.name"
-              />
-            </li>
-          </ul>
-          <h2 class="error" v-else>No result matching your criteria found</h2>
-        </div>
-      </transition>
-      <div class="container">
-        <ul class="nav">
-          <li v-for="n in pages" :key="n">
-            <button
-              type="button"
-              class="button"
-              :class="{ active: n === +this.$route.query.page }"
-              @click="setPage(n)"
-            >
-              {{ n }}
-            </button>
-          </li>
-        </ul>
-      </div>
+    <div v-if="!pageLoading">
+      <ul v-if="characters.length > 0" class="list">
+        <li v-for="character in characters" :key="character.id">
+          <base-card
+            :image="character.image"
+            :name="character.name"
+            :status="character.status"
+            :species="character.species"
+            :location="character.location.name"
+            :gender="character.gender"
+            :type="character.type"
+            :origin="character.origin.name"
+            :id="character.id"
+          />
+        </li>
+      </ul>
+      <h2 class="error" v-else>No result matching your criteria found</h2>
     </div>
   </transition>
+  <base-pagination :pages="pages" @click="setPage"></base-pagination>
 </template>
 
 <script>
 import BaseCard from '@/components/BaseCard.vue'
+import BasePagination from '@/components/BasePagination.vue'
+import BaseFilter from '@/components/BaseFilter.vue'
+
 export default {
-  components: { BaseCard },
+  components: { BaseCard, BasePagination, BaseFilter },
   data() {
     return {
       fullLoading: false,
@@ -179,7 +118,6 @@ export default {
           delete params[param]
         }
       }
-      console.log(params)
       return params
     }
   },
@@ -217,6 +155,20 @@ export default {
         left: 0,
         behavior: 'smooth'
       })
+    },
+    setStatus(status) {
+      if (status === 'all') {
+        this.status = ''
+        return
+      }
+      this.status = status
+    },
+    setGender(gender) {
+      if (gender === 'all') {
+        this.gender = ''
+        return
+      }
+      this.gender = gender
     },
     setQueryParams() {
       this.$router.push({ query: this.queryParams })
@@ -257,6 +209,12 @@ export default {
 </script>
 
 <style scoped>
+.filter {
+  display: flex;
+  gap: 15px;
+  color: whitesmoke;
+  margin-bottom: 10px;
+}
 .clear {
   margin-left: auto;
   height: fit-content;
@@ -298,69 +256,6 @@ export default {
   color: goldenrod;
   border: 1px solid goldenrod;
 }
-.filter {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
-  align-items: center;
-}
-.checkbox {
-  display: none;
-  opacity: 0;
-  visibility: hidden;
-  height: 0px;
-  width: 0px;
-}
-.label {
-  cursor: pointer;
-  padding: 5px 10px;
-  border: 1px solid whitesmoke;
-  border-radius: 10px;
-  font-size: 105%;
-  transition: all 0.75s;
-  display: block;
-}
-.checkbox:checked + .label {
-  color: goldenrod;
-  border-color: goldenrod;
-}
-.filter {
-  color: whitesmoke;
-}
-.button {
-  min-width: 35px;
-  min-height: 35px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 1s;
-  background-color: rgb(42, 46, 54);
-  border: 2px solid whitesmoke;
-  color: whitesmoke;
-  font-weight: bold;
-}
-
-.active {
-  background-color: green;
-  scale: 1.2;
-}
-
-.container {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgb(32, 35, 41);
-}
-
-.nav {
-  margin: 0 auto;
-  max-width: 1440px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  padding: 10px 15px;
-  place-content: center;
-}
 
 .list {
   display: grid;
@@ -390,11 +285,9 @@ export default {
 
 .page-enter-from {
   opacity: 0;
-  /* transform: translateX(150px); */
 }
 .page-leave-to {
   opacity: 0;
-  /* transform: translateX(-150px); */
 }
 
 .page-enter-active {
@@ -408,7 +301,6 @@ export default {
 .page-enter-to,
 .page-leave-from {
   opacity: 1;
-  /* transform: translateX(0px); */
 }
 .wrapper {
   display: flex;

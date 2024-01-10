@@ -1,7 +1,11 @@
 <template>
   <div class="header">
     <div class="container">
-      <img src="../assets/images/rick-and-morty-shop-logo-1-1.png" alt="Logo" />
+      <!-- <router-link :to="{ name: 'home', query: { page: 1 } }"> -->
+      <button type="button" class="logo">
+        <img src="../assets/images/rick-and-morty-shop-logo-1-1.png" alt="Logo" />
+      </button>
+      <!-- </router-link> -->
       <p>Welcome to the Rick and Morty database</p>
     </div>
   </div>
@@ -20,8 +24,13 @@ export default {}
   align-items: center;
 }
 
-img {
+.logo {
   height: 80px;
+  border: none;
+  background-color: transparent;
+}
+img {
+  height: 100%;
 }
 
 p {
