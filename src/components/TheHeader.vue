@@ -18,11 +18,6 @@ export default {
     path() {
       return this.$route.path === '/'
     }
-  },
-  watch: {
-    path() {
-      console.log(this.path)
-    }
   }
 }
 </script>

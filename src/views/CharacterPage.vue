@@ -39,7 +39,7 @@ export default {
   },
   created() {
     this.getCharacterById(this.$route.params.id)
-    console.log(this.$route)
+    // console.log(this.$route)
   },
   unmounted() {
     this.$store.commit(`setCharacterInfo`, {})

@@ -137,6 +137,7 @@ export default {
       this.name = ''
       this.gender = ''
       this.status = ''
+      this.search = ''
       this.currentPage = 1
       this.setQueryParams()
     },
@@ -146,7 +147,7 @@ export default {
       this.setQueryParams()
     },
     setPage(page) {
-      console.log(page)
+      //   console.log(page)
       this.currentPage = page
       this.setQueryParams()
       window.scroll({
