@@ -1,6 +1,12 @@
 <template>
   <div class="card">
-    <h3 class="title">{{ name }}</h3>
+    <div class="title">
+      <h3>{{ name }}</h3>
+      <router-link :to="{ name: 'character', params: { id } }" class="link">
+        To the character page
+      </router-link>
+    </div>
+
     <div class="info">
       <img :src="image" :alt="name" class="image" />
       <div>
@@ -23,7 +29,6 @@
         <p class="text" v-if="type"><i>Type: </i> {{ type }}</p>
         <p class="text"><i>Origin planet: </i>{{ origin }}</p>
         <p class="text"><i>Last known location: </i>{{ location }}</p>
-        <router-link :to="{ name: 'character', params: { id } }"> Learn more </router-link>
       </div>
     </div>
   </div>
@@ -99,8 +104,27 @@ export default {
   color: whitesmoke;
   font-weight: bold;
   font-size: 130%;
+  display: grid;
+  padding: 10px 15px;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
 }
 
+.link {
+  color: rgba(245, 245, 245, 0.7);
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid rgba(245, 245, 245, 0.7);
+  border-radius: 10px;
+  padding: 3px 5px;
+  font-size: 85%;
+  transition: all 0.4s;
+}
+.link:hover {
+  box-shadow:
+    goldenrod 0px 4px 6px -1px,
+    goldenrod 0px 2px 4px -1px;
+}
 .info {
   display: grid;
   gap: 10px;

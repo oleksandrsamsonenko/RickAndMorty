@@ -5,52 +5,51 @@
       filterControl ? 'Hide filter menu' : 'Show filter menu'
     }}</label>
   </span>
-  <transition>
-    <div class="wrapper" v-show="filterControl">
-      <div>
-        <base-filter
-          @setFilter="setStatus"
-          :model="`status`"
-          :value="status"
-          :data="['all', 'alive', 'dead', 'unknown']"
-        ></base-filter>
 
-        <base-filter
-          @setFilter="setGender"
-          :model="`gender`"
-          :value="gender"
-          :data="['all', 'male', 'female', 'genderless', 'unknown']"
-        ></base-filter>
+  <div class="wrapper" v-show="filterControl">
+    <div>
+      <base-filter
+        @setFilter="setStatus"
+        :model="`status`"
+        :value="status"
+        :data="['all', 'alive', 'dead', 'unknown']"
+      ></base-filter>
 
-        <form class="filter" @submit.prevent="setName">
-          <span>Find by name:</span>
-          <input
-            class="input"
-            type="text"
-            id="search"
-            placeholder="Search by name"
-            v-model="name"
-          />
-          <button type="submit" class="search">Search</button>
+      <base-filter
+        @setFilter="setGender"
+        :model="`gender`"
+        :value="gender"
+        :data="['all', 'male', 'female', 'genderless', 'unknown']"
+      ></base-filter>
 
-          <transition name="reset">
-            <button type="button" class="search" v-if="this.name.length > 0" @click="reset">
-              Reset
-            </button>
-          </transition>
-        </form>
-      </div>
-      <div class="total">
-        <h3 class="total-title">Characters found:</h3>
-        <p class="total-count">{{ count }}</p>
-      </div>
-      <transition name="reset"
-        ><button type="button" class="search clear" v-if="shouldShowClear" @click="clear">
-          Clear filters
-        </button>
-      </transition>
+      <form class="filter" @submit.prevent="setName">
+        <span>Find by name:</span>
+        <input
+          class="input"
+          type="text"
+          id="search"
+          placeholder="Search by name"
+          v-model="search"
+        />
+        <button type="submit" class="search">Search</button>
+
+        <transition name="reset">
+          <button type="button" class="search" v-if="this.name.length > 0" @click="reset">
+            Reset
+          </button>
+        </transition>
+      </form>
     </div>
-  </transition>
+    <div class="total">
+      <h3 class="total-title">Characters found:</h3>
+      <p class="total-count">{{ count }}</p>
+    </div>
+    <transition name="reset"
+      ><button type="button" class="search clear" v-if="shouldShowClear" @click="clear">
+        Clear filters
+      </button>
+    </transition>
+  </div>
 
   <transition name="page">
     <div v-if="!pageLoading">
@@ -72,7 +71,10 @@
       <h2 class="error" v-else>No result matching your criteria found</h2>
     </div>
   </transition>
-  <base-pagination :pages="pages" @click="setPage"></base-pagination>
+
+  <div class="container">
+    <base-pagination :pages="pages" @click="setPage"></base-pagination>
+  </div>
 </template>
 
 <script>
@@ -84,13 +86,13 @@ export default {
   components: { BaseCard, BasePagination, BaseFilter },
   data() {
     return {
-      fullLoading: false,
       pageLoading: false,
+      filterControl: true,
       currentPage: this.$route.query.page || 1,
       status: this.$route.query.status || '',
       gender: this.$route.query.gender || '',
       name: this.$route.query.name || '',
-      filterControl: false
+      search: this.$route.query.name
     }
   },
   computed: {
@@ -122,17 +124,14 @@ export default {
     }
   },
   methods: {
-    async fetchData(page, status, gender, name, loading) {
-      if (loading === `full`) {
-        this.fullLoading = true
-        await this.$store.dispatch(`fetchCharacters`, { page, status, gender, name, type: 'full' })
-        this.fullLoading = false
-      }
-      if (loading === `page`) {
-        this.pageLoading = true
-        await this.$store.dispatch(`fetchCharacters`, { page, status, gender, name, type: 'page' })
-        this.pageLoading = false
-      }
+    async fetchData(page, status, gender, name) {
+      this.pageLoading = true
+      await this.$store.dispatch(`fetchCharacters`, { page, status, gender, name })
+      this.pageLoading = false
+      //   setTimeout(() => {
+      //     this.pageLoading = false
+      //   }, 300)
+      // this is bullshit, but anyway it looks better with animation this way
     },
     clear() {
       this.name = ''
@@ -140,14 +139,14 @@ export default {
       this.status = ''
       this.currentPage = 1
       this.setQueryParams()
-      this.fetchData(this.currentPage, this.status, this.gender, this.name, `full`)
     },
     reset() {
       this.name = ''
+      this.search = ''
       this.setQueryParams()
-      this.fetchData(this.currentPage, this.status, this.gender, this.name, `full`)
     },
     setPage(page) {
+      console.log(page)
       this.currentPage = page
       this.setQueryParams()
       window.scroll({
@@ -157,52 +156,35 @@ export default {
       })
     },
     setStatus(status) {
+      this.currentPage = 1
       if (status === 'all') {
         this.status = ''
-        return
-      }
-      this.status = status
+      } else this.status = status
+      this.setQueryParams()
     },
     setGender(gender) {
+      this.currentPage = 1
       if (gender === 'all') {
         this.gender = ''
-        return
-      }
-      this.gender = gender
+      } else this.gender = gender
+      this.setQueryParams()
     },
     setQueryParams() {
       this.$router.push({ query: this.queryParams })
     },
     setName() {
       this.currentPage = 1
+      this.name = this.search
       this.setQueryParams()
-      this.fetchData(this.currentPage, this.status, this.gender, this.name, `full`)
     }
   },
-
   created() {
     this.setQueryParams()
-    this.fetchData(this.currentPage, this.status, this.gender, this.name, `full`)
+    this.fetchData(this.currentPage, this.status, this.gender, this.name)
   },
   watch: {
-    currentPage(curVal, oldVal) {
-      if (curVal !== oldVal) {
-        this.fetchData(this.currentPage, this.status, this.gender, this.name, `page`)
-      }
-    },
-    status(curVal, oldVal) {
-      if (curVal !== oldVal) {
-        this.currentPage = 1
-        this.setQueryParams()
-        this.fetchData(this.currentPage, this.status, this.gender, this.name, `full`)
-      }
-    },
-    gender(curVal, oldVal) {
-      if (curVal !== oldVal) {
-        this.currentPage = 1
-        this.setQueryParams()
-        this.fetchData(this.currentPage, this.status, this.gender, this.name, `full`)
-      }
+    queryParams() {
+      this.fetchData(this.currentPage, this.status, this.gender, this.name)
     }
   }
 }
@@ -283,19 +265,14 @@ export default {
   transform: scale(1);
 }
 
-.page-enter-from {
-  opacity: 0;
-}
+.page-enter-from,
 .page-leave-to {
   opacity: 0;
 }
 
-.page-enter-active {
-  transition: all 0.5s ease-out;
-}
-
+.page-enter-active,
 .page-leave-active {
-  transition: all 0.5s ease-in;
+  transition: all 0.4s ease-in-out;
 }
 
 .page-enter-to,
@@ -323,27 +300,6 @@ export default {
   font-size: 450%;
 }
 
-.filter-enter-from {
-  scale: 0.5;
-}
-.filter-leave-to {
-  height: 100%;
-}
-
-.filter-enter-active {
-  height: 100%;
-  transition: all 5s ease-out;
-}
-
-.filter-leave-active {
-  scale: 1;
-}
-
-.filter-enter-to,
-.filter-leave-from {
-  scale: 1;
-}
-
 .show-wrapper {
   display: block;
   margin-bottom: 20px;
@@ -362,5 +318,13 @@ export default {
   margin-bottom: 100px;
   border-radius: 10px;
   cursor: pointer;
+}
+.container {
+  padding: 5px 0px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgb(32, 35, 41);
 }
 </style>

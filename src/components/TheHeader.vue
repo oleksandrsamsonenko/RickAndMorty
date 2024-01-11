@@ -1,18 +1,30 @@
 <template>
   <div class="header">
     <div class="container">
-      <!-- <router-link :to="{ name: 'home', query: { page: 1 } }"> -->
-      <button type="button" class="logo">
+      <router-link v-if="!path" :to="{ name: 'home', query: { page: 1 } }" class="logo">
         <img src="../assets/images/rick-and-morty-shop-logo-1-1.png" alt="Logo" />
-      </button>
-      <!-- </router-link> -->
+      </router-link>
+      <div v-else class="logo">
+        <img src="../assets/images/rick-and-morty-shop-logo-1-1.png" alt="Logo" />
+      </div>
       <p>Welcome to the Rick and Morty database</p>
     </div>
   </div>
 </template>
 
 <script>
-export default {}
+export default {
+  computed: {
+    path() {
+      return this.$route.path === '/'
+    }
+  },
+  watch: {
+    path() {
+      console.log(this.path)
+    }
+  }
+}
 </script>
 
 <style scoped>

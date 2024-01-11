@@ -6,7 +6,8 @@ export default {
     return {
       total: null,
       pages: 1,
-      characters: []
+      characters: [],
+      characterInfo: {}
     }
   },
   getters: {
@@ -18,6 +19,9 @@ export default {
     },
     getPages(state) {
       return state.pages
+    },
+    getCharacterInfo(state) {
+      return state.characterInfo
     }
   },
   mutations: {
@@ -29,6 +33,9 @@ export default {
     },
     setPages(state, payload) {
       state.pages = payload.pages
+    },
+    setCharacterInfo(state, payload) {
+      state.characterInfo = payload
     }
   },
   actions: {
@@ -37,16 +44,22 @@ export default {
         const response = await axios.get(
           `https://rickandmortyapi.com/api/character?page=${payload.page}&status=${payload.status}&gender=${payload.gender}&name=${payload.name}`
         )
-        // console.log(response)
         context.commit(`setCharacters`, { characters: response.data.results })
-        if (payload.type === `full`) {
-          context.commit(`setTotalCount`, { total: response.data.info.count })
-          context.commit(`setPages`, { pages: response.data.info.pages })
-        }
+        context.commit(`setTotalCount`, { total: response.data.info.count })
+        context.commit(`setPages`, { pages: response.data.info.pages })
       } catch (e) {
         context.commit(`setTotalCount`, { total: 0 })
         context.commit(`setPages`, { pages: 0 })
         context.commit(`setCharacters`, { characters: [] })
+      }
+    },
+    async fetchCharactersById(context, payload) {
+      try {
+        const response = await axios.get(`https://rickandmortyapi.com/api/character/${payload.id}`)
+        console.log(response)
+        context.commit(`setCharacterInfo`, response.data)
+      } catch (e) {
+        console.log(e)
       }
     }
   }

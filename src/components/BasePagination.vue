@@ -1,18 +1,16 @@
 <template>
-  <div class="container">
-    <ul class="nav">
-      <li v-for="n in pages" :key="n">
-        <button
-          type="button"
-          class="button"
-          :class="{ active: n === +this.$route.query.page }"
-          @click="setPage(n)"
-        >
-          {{ n }}
-        </button>
-      </li>
-    </ul>
-  </div>
+  <ul class="nav">
+    <li v-for="n in pages" :key="n">
+      <button
+        type="button"
+        class="button"
+        :class="{ active: n === +this.$route.query.page }"
+        @click="setPage(n)"
+      >
+        {{ n }}
+      </button>
+    </li>
+  </ul>
 </template>
 
 <script>
@@ -59,13 +57,5 @@ export default {
 .active {
   background-color: green;
   scale: 1.2;
-}
-
-.container {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgb(32, 35, 41);
 }
 </style>

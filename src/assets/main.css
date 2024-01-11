@@ -2,8 +2,11 @@
 
 #app {
   max-width: 1440px;
-  margin: 0 auto;
+  width: 100%;
   padding: 1rem;
   font-weight: normal;
-  min-height: 100vh;
+  min-height: 100%;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
 }

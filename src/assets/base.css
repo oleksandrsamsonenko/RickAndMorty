@@ -59,14 +59,13 @@
 }
 
 body {
+  display: flex;
+  justify-content: center;
   padding-top: 80px;
   padding-bottom: 100px;
   min-height: 100vh;
   color: var(--color-text);
   background-color: rgb(42, 46, 54);
-  transition:
-    color 0.5s,
-    background-color 0.5s;
   line-height: 1.6;
   font-family: Roboto, sans-serif;
   font-size: 15px;
