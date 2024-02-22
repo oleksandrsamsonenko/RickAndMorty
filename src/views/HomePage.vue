@@ -50,7 +50,6 @@
       </button>
     </transition>
   </div>
-
   <transition name="page">
     <div v-if="!pageLoading">
       <ul v-if="characters.length > 0" class="list">
@@ -81,7 +80,6 @@
 import BaseCard from '@/components/BaseCard.vue'
 import BasePagination from '@/components/BasePagination.vue'
 import BaseFilter from '@/components/BaseFilter.vue'
-
 export default {
   components: { BaseCard, BasePagination, BaseFilter },
   data() {
@@ -92,10 +90,13 @@ export default {
       status: this.$route.query.status || '',
       gender: this.$route.query.gender || '',
       name: this.$route.query.name || '',
-      search: this.$route.query.name
+      search: this.$route.query.name || ''
     }
   },
   computed: {
+    isLoggedIn() {
+      return this.$store.getters['user/getCurrentUser']
+    },
     shouldShowClear() {
       return this.status !== '' || this.gender !== '' || this.name !== ''
     },
@@ -128,10 +129,9 @@ export default {
       this.pageLoading = true
       await this.$store.dispatch(`fetchCharacters`, { page, status, gender, name })
       this.pageLoading = false
-      //   setTimeout(() => {
-      //     this.pageLoading = false
-      //   }, 300)
-      // this is bullshit, but anyway it looks better with animation this way
+    },
+    async getFavorites() {
+      await this.$store.dispatch(`getFavorites`)
     },
     clear() {
       this.name = ''
@@ -147,7 +147,6 @@ export default {
       this.setQueryParams()
     },
     setPage(page) {
-      //   console.log(page)
       this.currentPage = page
       this.setQueryParams()
       window.scroll({
@@ -179,9 +178,10 @@ export default {
       this.setQueryParams()
     }
   },
-  created() {
+  mounted() {
     this.setQueryParams()
     this.fetchData(this.currentPage, this.status, this.gender, this.name)
+    this.getFavorites()
   },
   watch: {
     queryParams() {
@@ -191,9 +191,10 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .filter {
   display: flex;
+  align-items: center;
   gap: 15px;
   color: whitesmoke;
   margin-bottom: 10px;
@@ -242,8 +243,11 @@ export default {
 
 .list {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 25px;
+  @media screen and (min-width: 1000px) {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .reset-enter-from,

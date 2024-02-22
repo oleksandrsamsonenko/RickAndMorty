@@ -1,13 +1,14 @@
 import axios from 'axios'
+import { databases, ID } from '@/lib/appwrite.js'
 
 export default {
-  //   namespaced: true,
   state() {
     return {
       total: null,
       pages: 1,
       characters: [],
-      characterInfo: {}
+      characterInfo: {},
+      favorites: []
     }
   },
   getters: {
@@ -22,6 +23,12 @@ export default {
     },
     getCharacterInfo(state) {
       return state.characterInfo
+    },
+    getFavorites(state) {
+      return state.favorites
+    },
+    getStatus: (state) => (id) => {
+      return state.favorites.find((item) => item.id === id)
     }
   },
   mutations: {
@@ -36,6 +43,15 @@ export default {
     },
     setCharacterInfo(state, payload) {
       state.characterInfo = payload
+    },
+    setFavorites(state, payload) {
+      state.favorites = payload
+    },
+    addFavorite(state, payload) {
+      state.favorites.push(payload)
+    },
+    removeFavorite(state, payload) {
+      state.favorites = state.favorites.filter((item) => item.$id !== payload)
     }
   },
   actions: {
@@ -53,14 +69,34 @@ export default {
         context.commit(`setCharacters`, { characters: [] })
       }
     },
+
     async fetchCharactersById(context, payload) {
       try {
         const response = await axios.get(`https://rickandmortyapi.com/api/character/${payload.id}`)
-        console.log(response)
         context.commit(`setCharacterInfo`, response.data)
       } catch (e) {
         console.log(e)
       }
+    },
+
+    async getFavorites(context) {
+      const response = await databases.listDocuments('65c7809b4e66f0e7fa9b', '65c79a18b048c86014ca')
+      context.commit(`setFavorites`, response.documents)
+    },
+
+    async addToFavorite(context, payload) {
+      const response = await databases.createDocument(
+        '65c7809b4e66f0e7fa9b',
+        '65c79a18b048c86014ca',
+        ID.unique(),
+        { id: payload.id, name: payload.name }
+      )
+      context.commit('addFavorite', response)
+    },
+
+    async removeFromFavorite(context, payload) {
+      await databases.deleteDocument('65c7809b4e66f0e7fa9b', '65c79a18b048c86014ca', payload.id)
+      context.commit('removeFavorite', payload.id)
     }
   }
 }

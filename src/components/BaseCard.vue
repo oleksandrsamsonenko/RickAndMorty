@@ -28,12 +28,20 @@
         <p class="text"><i>Gender: </i> {{ gender }}</p>
         <p class="text" v-if="type"><i>Type: </i> {{ type }}</p>
         <p class="text"><i>Origin planet: </i>{{ origin }}</p>
-        <p class="text"><i>Last known location: </i>{{ location }}</p>
+        <!-- <p class="text"><i>Last known location: </i>{{ location }}</p> -->
+      </div>
+      <div v-if="this.$store.getters['user/getCurrentUser']" class="favorite">
+        <button v-if="loading" disabled>Wait...</button>
+        <div v-else>
+          <button v-if="!isFavorite" type="button" @click="addToFavorite" class="add">Add</button>
+          <button v-else type="button" @click="removeFromFavorite(isFavorite.$id)" class="remove">
+            Remove
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
 export default {
   props: {
@@ -79,11 +87,41 @@ export default {
       type: Number,
       required: true
     }
+  },
+  data() {
+    return {
+      loading: false
+    }
+  },
+  computed: {
+    isFavorite() {
+      return this.$store.getters.getStatus(this.id)
+    }
+  },
+
+  methods: {
+    async addToFavorite() {
+      this.loading = true
+      await this.$store.dispatch(`addToFavorite`, {
+        id: this.id,
+        name: this.name,
+        race: this.race,
+        gender: this.gender
+      })
+      this.loading = false
+    },
+    async removeFromFavorite(id) {
+      this.loading = true
+      await this.$store.dispatch(`removeFromFavorite`, {
+        id
+      })
+      this.loading = false
+    }
   }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .card {
   border-radius: 15px;
   display: flex;
@@ -95,6 +133,30 @@ export default {
     rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
 }
 
+.favorite {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 0;
+
+  button {
+    background-color: transparent;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 16px;
+  }
+}
+
+.add {
+  color: green;
+  border-color: green;
+}
+.remove {
+  color: red;
+  border-color: red;
+}
 .title {
   width: 100%;
   text-align: center;
@@ -121,14 +183,14 @@ export default {
   transition: all 0.4s;
 }
 .link:hover {
-  box-shadow:
-    goldenrod 0px 4px 6px -1px,
-    goldenrod 0px 2px 4px -1px;
+  color: goldenrod;
+  border-color: goldenrod;
 }
 .info {
   display: grid;
   gap: 10px;
   grid-template-columns: 35% 1fr;
+  position: relative;
 }
 
 .text {
