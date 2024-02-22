@@ -6,50 +6,54 @@
     }}</label>
   </span>
 
-  <div class="wrapper" v-show="filterControl">
-    <div>
-      <base-filter
-        @setFilter="setStatus"
-        :model="`status`"
-        :value="status"
-        :data="['all', 'alive', 'dead', 'unknown']"
-      ></base-filter>
+  <transition name="reset">
+    <div class="wrapper" v-show="filterControl">
+      <div>
+        <base-filter
+          @setFilter="setStatus"
+          :model="`status`"
+          :value="status"
+          :data="['all', 'alive', 'dead', 'unknown']"
+        ></base-filter>
 
-      <base-filter
-        @setFilter="setGender"
-        :model="`gender`"
-        :value="gender"
-        :data="['all', 'male', 'female', 'genderless', 'unknown']"
-      ></base-filter>
+        <base-filter
+          @setFilter="setGender"
+          :model="`gender`"
+          :value="gender"
+          :data="['all', 'male', 'female', 'genderless', 'unknown']"
+        ></base-filter>
 
-      <form class="filter" @submit.prevent="setName">
-        <span>Find by name:</span>
-        <input
-          class="input"
-          type="text"
-          id="search"
-          placeholder="Search by name"
-          v-model="search"
-        />
-        <button type="submit" class="search">Search</button>
+        <form class="filter" @submit.prevent="setName">
+          <span>Find by name:</span>
+          <input
+            class="input"
+            type="text"
+            id="search"
+            placeholder="Search by name"
+            v-model="search"
+          />
+          <button type="submit" class="search">Search</button>
 
-        <transition name="reset">
-          <button type="button" class="search" v-if="this.name.length > 0" @click="reset">
-            Reset
-          </button>
-        </transition>
-      </form>
+          <transition name="reset">
+            <button type="button" class="search" v-if="this.name.length > 0" @click="reset">
+              Reset
+            </button>
+          </transition>
+        </form>
+      </div>
+
+      <div class="total">
+        <h3 class="total-title">Characters found:</h3>
+        <p class="total-count">{{ count }}</p>
+      </div>
+      <transition name="reset"
+        ><button type="button" class="search clear" v-if="shouldShowClear" @click="clear">
+          Clear filters
+        </button>
+      </transition>
     </div>
-    <div class="total">
-      <h3 class="total-title">Characters found:</h3>
-      <p class="total-count">{{ count }}</p>
-    </div>
-    <transition name="reset"
-      ><button type="button" class="search clear" v-if="shouldShowClear" @click="clear">
-        Clear filters
-      </button>
-    </transition>
-  </div>
+  </transition>
+
   <transition name="page">
     <div v-if="!pageLoading">
       <ul v-if="characters.length > 0" class="list">
@@ -71,22 +75,44 @@
     </div>
   </transition>
 
-  <div class="container">
-    <base-pagination :pages="pages" @click="setPage"></base-pagination>
+  <div class="container mobile">
+    <!-- <base-pagination :pages="pages" @click="setPage"></base-pagination> -->
+    <vue-awesome-paginate
+      :total-items="pages"
+      :items-per-page="1"
+      :max-pages-shown="3"
+      v-model="currentPage"
+      :on-click="setPage"
+      :show-breakpoint-buttons="true"
+      :show-ending-buttons="false"
+      :hidePrevNext="true"
+    />
+  </div>
+  <div class="container desktop">
+    <vue-awesome-paginate
+      :total-items="pages"
+      :items-per-page="1"
+      :max-pages-shown="10"
+      v-model="currentPage"
+      :on-click="setPage"
+      :show-breakpoint-buttons="true"
+      :show-ending-buttons="false"
+      :hidePrevNext="true"
+    />
   </div>
 </template>
 
 <script>
 import BaseCard from '@/components/BaseCard.vue'
-import BasePagination from '@/components/BasePagination.vue'
+// import BasePagination from '@/components/BasePagination.vue'
 import BaseFilter from '@/components/BaseFilter.vue'
 export default {
-  components: { BaseCard, BasePagination, BaseFilter },
+  components: { BaseCard, BaseFilter },
   data() {
     return {
       pageLoading: false,
       filterControl: true,
-      currentPage: this.$route.query.page || 1,
+      currentPage: +this.$route.query.page || 1,
       status: this.$route.query.status || '',
       gender: this.$route.query.gender || '',
       name: this.$route.query.name || '',
@@ -147,7 +173,7 @@ export default {
       this.setQueryParams()
     },
     setPage(page) {
-      this.currentPage = page
+      this.currentPage = +page
       this.setQueryParams()
       window.scroll({
         top: 0,
@@ -193,6 +219,10 @@ export default {
 
 <style scoped lang="scss">
 .filter {
+  @media screen and (max-width: 767px) {
+    flex-direction: column;
+    align-items: start;
+  }
   display: flex;
   align-items: center;
   gap: 15px;
@@ -287,6 +317,7 @@ export default {
 .wrapper {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   gap: 50px;
 }
 
@@ -325,11 +356,27 @@ export default {
   cursor: pointer;
 }
 .container {
+  display: flex;
   padding: 5px 0px;
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   background-color: rgb(32, 35, 41);
+}
+.wrapper {
+  transition: all 0.5s;
+}
+
+.mobile {
+  @media screen and (min-width: 768px) {
+    display: none;
+  }
+}
+
+.desktop {
+  @media screen and (max-width: 767px) {
+    display: none;
+  }
 }
 </style>

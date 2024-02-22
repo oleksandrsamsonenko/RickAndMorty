@@ -7,7 +7,7 @@
       <div v-else class="logo">
         <img src="../assets/images/rick-and-morty-shop-logo-1-1.png" alt="Logo" />
       </div>
-      <p class="greeting">Welcome to the Rick and Morty database</p>
+      <!-- <p class="greeting">Welcome to the Rick and Morty database</p> -->
 
       <div class="nav" v-if="!isLoggedIn">
         <router-link :to="{ name: 'register' }" class="link">Register</router-link>

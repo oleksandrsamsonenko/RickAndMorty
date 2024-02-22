@@ -10,3 +10,32 @@
   justify-content: flex-start;
   flex-direction: column;
 }
+
+.pagination-container {
+  column-gap: 10px;
+  margin: 5px auto 15px;
+  max-width: 1440px;
+}
+.paginate-buttons {
+  min-width: 45px;
+  min-height: 45px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 1s;
+  background-color: rgb(42, 46, 54);
+  border: 2px solid whitesmoke;
+  color: whitesmoke;
+  font-weight: bold;
+}
+/* .paginate-buttons:hover {
+  background-color: green;
+} */
+.active-page {
+  background-color: green;
+  scale: 1.2;
+}
+
+.back-button:active,
+.next-button:active {
+  background-color: green;
+}
