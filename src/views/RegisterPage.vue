@@ -76,8 +76,7 @@ export default {
 <style scoped lang="scss">
 .form {
   margin: auto;
-  min-width: 400px;
-  width: 50%;
+  width: 90%;
   display: flex;
   gap: 30px;
   flex-direction: column;
@@ -85,6 +84,10 @@ export default {
   border-radius: 15px;
   padding: 50px 25px;
   font-size: 120%;
+  @media screen and (min-width: 768px) {
+    min-width: 400px;
+    width: 60%;
+  }
 }
 
 fieldset {
